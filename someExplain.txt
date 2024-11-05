@@ -1,0 +1,120 @@
+to use redux on e-commerce 
+first ) we create store.jsx file
+2 ) we create productSlice.jsx file
+3 ) we create cartSlice.jsx file
+
+-- from the store we will access to cart and product slice
+
+1 ) productSlice file 
+
+const initialState = {
+    products: [],
+    totalPrice:0,
+    totalQuantity:0
+}
+
+const productSlice = createSlice({
+    name: 'products',
+    initialState,
+    reducers: {
+        setProducts(state, action) {
+            state.products = action.payload;
+        }
+    }
+})
+
+export const {setProducts} = productSlice.actions;
+export default productSlice.reducer;
+
+
+2) cartSlice file
+
+const initialState = {
+    products:[]
+}
+
+const cartSlice = createSlice({
+    name:'cart',
+    initialState,
+    reducers: {
+       addToCart(sate, action) {
+            const newItem = action.payload
+            const itemIndex = state.products.find(item => item.id === newItem.id)
+            if(itemIndex) {
+                itemIndex.quantity++;
+                itemIndex.totalPrice+= newItem.price 
+            }else {
+                state.products.push({
+                    id:newItem.id,
+                    quantity:1,
+                    totalPrice:newItem.price
+                    name: newItem.name,
+                    image:newItem.image,
+                    price:newItem.price
+                })
+            }
+            state.totalPrice += newItem.price;
+            state.totalQuantity++;
+       }
+    }
+
+    removeFromCart(state, action){
+        const id = action.payload;
+        const findItem = state.product.map(item => item.id === id)
+        if(findItem){
+            state.totalPrice -= findItem.totalPrice;
+            state.totalQuantity -= findItem.quantity; 
+            state.products = state.products.filter(item => item.id !== id)
+        }
+    }
+
+    increaseQty(state, action){
+        const id = action.payload;
+        const findItem = state.products.find(item=> item.id === id)
+
+        if(findItem){
+            findItem.quantity++;
+            findItem.totalPrice += findItem.price
+            state.totalQuantity++;
+            state.totalPrice += findItem.price
+        }
+    }
+
+     decreaseQty(state, action){
+        const id = action.payload;
+        const findItem = state.products.find(item=> item.id === id)
+        if(findItem){
+            findItem.quantity--;
+            findItem.totalPrice -= findItem.price
+            state.totalQuantity--;
+            state.totalPrice -= findItem.price
+        }
+    }
+})
+
+export const {setProducts} = cartSlice.actions
+export default cartSlice.reducer
+
+then we g to product page and add handle function
+
+function handleAddToCart(e, product){
+    dispatch(addToCart(prorduct))
+}
+
+
+3 ) store file
+
+const store =  configureStore({
+    products: productSlice,
+    cart: cartSlice
+})
+
+export default store
+
+------ 
+if i want use the setProducts from cartSlice to display product
+const product = useSelector(state => state.product) ===> product the name of reducer 
+const dispatch = useDispatch()
+useEffect(() => {
+    dispatch(setProducts(fakeData))
+})
